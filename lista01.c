@@ -17,7 +17,6 @@ mas, isso só seria útil para operações no final dela evitaria um laço para 
 // algo simples para ser didático
 typedef struct Lista_ {
    nodo *inicio;
-   int tam;
    nodo *fim;
 }Lista;
 
@@ -54,14 +53,15 @@ void insere_in(Lista *list, int dados){
       // Para fins didáticos, voltados ao nosso objetivo cá, o que estamos fazendo é o suficiente.
 
       // > inserção:
-       if(list){
-         novo->prox = list->inicio;
-         list->inicio = novo;
-
-       }else {
+       if(list->inicio == NULL){
          list->inicio = novo;
          list->fim = novo; // será útil para opreções no fim... (n quero fazer esse laço)
          novo->prox = NULL;
+
+       }else {
+         novo->prox = list->inicio;
+         list->inicio = novo;
+        
         }
    }else{      
       system ("cls");
@@ -75,13 +75,14 @@ void insere_fm(Lista *list, int dados){
    if (novo){
       novo->info= dados;
 
-      if (list->fim && list->inicio){
+      if (list->inicio== NULL){
          list->inicio = novo;
          list->fim = novo; 
          novo->prox = NULL;
 
       } else {
          list->fim->prox = novo;
+         list-> fim = novo;
          novo->prox=NULL;
 
       }
@@ -101,27 +102,30 @@ um inserção no meio.  como nome, ID. documento...
 Para isso, vamos considerar que o int dados se refere a um campo único da struct, que não possui
 repetição.
 */
-void inserir_md (Lista *list, int dados, int ref){
+void insere_md (Lista *list, int dados, int ref){
 
    nodo * novo = (nodo*)malloc(sizeof(nodo));
    nodo *suporte;
    if (novo){
       novo->info= dados;
          // se for a 1° inserção
-        if (list->fim && list->inicio){
+        if (list->inicio == NULL ){
             list->inicio = novo;
             list->fim = novo; 
             novo->prox = NULL;
       } else {
          // usaremos de uma variavel auxiliar para percorrer a lista sem alterar o ponteiro original 
          suporte = list->inicio;
+         //eventualmete será encontrado o nó desejado se não encontrar e referência a inserção ocorre no fim... pq sim.
             while(suporte->info!= ref && suporte->prox!= NULL){
               suporte = suporte->prox;
          }
-
-         // eventualmete será encontrado o nó desejado
+         if (suporte == list->fim){
+         list->fim=novo;
+         }
          novo->prox = suporte->prox;
          suporte->prox = novo;
+
             }
 
    }else{
@@ -133,11 +137,13 @@ void inserir_md (Lista *list, int dados, int ref){
 
 //* ler
 // no
-void printno(Lista * no){
+void printno(nodo * no){
    printf("\n- - - - - - - - - - - - - - - -\n");
-   printf("Dados: %d", no->inicio->info);
+   printf("Dados: %d", no->info);
    printf("\n- - - - - - - - - - - - - - - -\n");
 }
+
+
 
 // mostrar lista:
 
@@ -145,24 +151,37 @@ void imprime_ls(Lista ls){
    if (ls.inicio){
       system("cls");
       printf("\n=-=-=-=-=-=-=-=-=-=[LISTA]-=-=-=-=-=-=-=-=-=-=-=-\n\n");
-      while (ls.inicio!= ls.fim){
-      printno(&ls);
-      ls.inicio = ls.inicio->prox;
-      printf("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
+      while (ls.inicio){
+         printno(ls.inicio);
+         ls.inicio = ls.inicio->prox;
+         printf("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n");
+
+         
+      }
       printf("pressione enter para retornar ao menu");
       system ("pause");
       system("cls");
-   }
    }else{
       system("cls");
       printf("\nLISTA VAZIA\n");
-      Sleep (300);
+      Sleep (500);
       system("cls");
    } 
 }
 
 
 // * Remover 
+// liberar memória da lista
+void lfree(nodo *no){
+      nodo *aux = no;
+      
+   while(aux != NULL){
+      aux =aux->prox;
+      free(no);
+   }
+   free (aux);
+}
+
 // começo
 // meio
 // fim
@@ -171,29 +190,90 @@ void imprime_ls(Lista ls){
 
 int main (){
 
-
-   int op;
+   int op,op1,x,y;
+   Lista lista;
+   lista.fim= NULL;
+   lista.inicio = NULL;
    
    system("chcp 65001");
    
    do{
       char msg []= {"Saindo..."};
+
       printf ("\t\t\t\tMENU\n\n");
-      printf("1- LISTAR;     2- REMOVER\n3- ADICIONAR   4- NAVEGAR...\n0- SAIR\n");
+      printf("1- ADICIONAR     2- REMOVER\n3- LISTAR   0- SAIR\n");
       scanf("%d",&op);
 
       switch(op){
          case 0:
          // sair 
+            system ("cls");
             printf("\n");
             for (int i=0; i <(int)strlen(msg); i++){
                printf("%c",msg[i]);
                Sleep(100);
             }
+            lfree(lista.inicio);
             Sleep(100);
             system("cls");
             break;
          case 1:
+            /* Poderia eu ter feito tudo em um swich só... mas, farei um dentro do outro 
+            para poluir menos o terminal...
+                     */ 
+               do{
+
+               system ("cls");
+               printf("1- INÍCIO     2- MEIO\n3- FIM   \n0- VOLTAR\n");
+               scanf("%d",&op1);
+                     switch(op1){
+                  case 0:
+
+                     system ("cls");
+                     break;
+
+                  case 1:
+
+                     system("cls");
+                     printf("Digite o dado:");
+                     scanf("%d", &x);
+                     insere_in(&lista, x);
+                     
+                     system("cls");
+                     break;
+
+                  case 2:
+                  
+                     system("cls");
+                     printf("Digite o dado:");
+                     scanf("%d", &x);
+                     printf("\nApós quem?\n");
+                     scanf("%d", &y);
+                     insere_md(&lista, x,y);
+
+                     system("cls");
+                     break;
+
+                  case 3:
+
+                     system("cls");
+                     printf("Digite o dado:");
+                     scanf("%d", &x);
+                     insere_fm(&lista, x);
+               
+                     system("cls");
+                     break;
+
+                  default:
+                     system("cls");
+                     printf("\nENTRADA INVÁLIDA! Tente novamente.");
+                     Sleep(100);
+                     system("cls");
+                     break;
+               }
+
+            }while(op1);
+
 
             break;
          case 2:
@@ -202,8 +282,7 @@ int main (){
             break;
          case 3:
             system("cls");
-      
-            system("cls");
+            imprime_ls(lista);
             break;
          case 4:
            
@@ -218,3 +297,5 @@ int main (){
 }while(op!=0);
    return 0;
 }
+
+
