@@ -117,10 +117,13 @@ void insere_md (Lista *list, int dados, int ref){
          // usaremos de uma variavel auxiliar para percorrer a lista sem alterar o ponteiro original 
          suporte = list->inicio;
          //eventualmete será encontrado o nó desejado se não encontrar e referência a inserção ocorre no fim... pq sim.
-            while(suporte->info!= ref && suporte->prox!= NULL){
-              suporte = suporte->prox;
-         }
+            while(suporte->info!= ref && suporte->prox!= NULL){ suporte = suporte->prox; }
          if (suporte == list->fim){
+            if (suporte->info != ref){
+               printf("\n\nA Referência não foi encontrada.\nDado será inserido no fim da lista.");
+               Sleep(500);
+               system("cls");
+            }
          list->fim=novo;
          }
          novo->prox = suporte->prox;
@@ -171,21 +174,90 @@ void imprime_ls(Lista ls){
 
 
 // * Remover 
+void remover (Lista * lista);
 // liberar memória da lista
 void lfree(nodo *no){
-      nodo *aux = no;
-      
-   while(aux != NULL){
-      aux =aux->prox;
-      free(no);
+      nodo *aux;
+   while(no != NULL){
+      aux = no;
+      no =no->prox;
+      free(aux);
    }
-   free (aux);
 }
 
 // começo
-// meio
+void remove_in(Lista *list){
+   if (list->inicio){
+      nodo *aux = list->inicio->prox;
+      free(list->inicio);
+      list->inicio = aux;
+      /*
+      Bom, aqui seleciono o ponteiro que passará a ser o novo início e passo para uma variável de transporte.
+      Libero o aquele nó da memória e atriubuo o inicio ao valor de ponteiro que salvei. 
+      */ 
+      
+   }else {
+      system ("cls");
+      printf("Nada para remover!");
+      Sleep(500);
+      
+   }
+
+}
+
+
 // fim
 
+void remove_fm(Lista *list){
+   nodo *aux = list->inicio;
+
+   if (list->inicio){
+         if (list->inicio == list->fim) {
+            remove_in(list);
+            list->fim = NULL;
+         }else{
+            while (aux->prox != list->fim){ aux=aux->prox; }
+            list->fim = aux;
+            free (aux->prox);
+            aux->prox = NULL;
+            }
+                               
+   }else {
+      system ("cls");
+      printf("Nada para remover!");
+      Sleep(500);
+      
+   }
+
+}
+
+// meio
+void remove_md(Lista *no, int ref){
+   if (no->inicio){
+      if ( no->inicio->info == ref) {remove_in(no);}
+      else if(no->fim->info == ref) {remove_fm(no);}
+      else {
+         nodo *aux = no->inicio;
+         
+         while( aux->prox && aux->prox->info != ref){ aux= aux->prox;}
+            if (aux->prox == NULL){
+               system("cls");
+               printf("\nReferência não encontrada\n");
+               Sleep(600);
+            }else{
+         nodo *aux2;
+         aux2 = aux->prox;
+         aux->prox = aux2->prox;
+         free(aux2);      
+         }
+         }
+
+   }else{
+      system ("cls");
+      printf("Nada para remover!");
+      Sleep(600); 
+   }
+}
 
 
 int main (){
@@ -271,19 +343,20 @@ int main (){
                      system("cls");
                      break;
                }
-
             }while(op1);
-
-
             break;
+
          case 2:
-         system("cls");
-         // sai da fila e mostra o próximo;
+            system("cls");
+            remover(&lista);
             break;
+
          case 3:
+
             system("cls");
             imprime_ls(lista);
             break;
+
          case 4:
            
             break;
@@ -299,3 +372,62 @@ int main (){
 }
 
 
+void remover (Lista *lista){
+int op1,y;
+   do{
+   char msg []= {"Removendo..."};
+   system ("cls");
+   printf("1- INÍCIO     2- MEIO\n3- FIM   \n0- VOLTAR\n");
+   scanf("%d",&op1);
+         switch(op1){
+
+      case 0:
+
+         system("cls");
+         break;
+
+      case 1:
+
+         system("cls");
+         remove_in(lista);
+         
+            printf("\n");
+            for (int i=0; i <(int)strlen(msg); i++){
+            printf("%c",msg[i]);
+            Sleep(100);         
+            }
+            Sleep(200);
+         system("cls");
+        
+         break;
+
+      case 2:
+            system("cls");
+            printf("Qual a referência ao no a ser removido?\n");
+            scanf("%d",&y);
+            remove_md(lista, y);
+               printf("\n");
+               for (int i=0; i <(int)strlen(msg); i++){
+               printf("%c",msg[i]);
+               Sleep(100);         
+               }
+               Sleep(200);
+         break;
+      case 3:
+         remove_fm(lista);
+               printf("\n");
+               for (int i=0; i <(int)strlen(msg); i++){
+               printf("%c",msg[i]);
+               Sleep(100);         
+               }
+               Sleep(200);
+         system("cls");
+         break;
+      default:
+         system("cls");
+         printf("\nENTRADA INVÁLIDA! Tente novamente.");
+         Sleep(100);
+         system("cls");
+         break;
+       }
+   }while (op1); }
